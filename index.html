@@ -61,6 +61,7 @@
         
         #ascii-mobile {
             display: none; /* Hidden by default */
+            transform-origin: top left; /* Scale from the top-left corner */
         }
         
         .ascii-char {
@@ -103,8 +104,7 @@
             }
             #ascii-mobile {
                 display: block;
-                /* Use viewport width to scale font and ensure it fits the screen */
-                font-size: 0.6vw; 
+                font-size: 10px; /* Set a base font-size for calculation */
             }
             body {
                 font-size: 1.1rem;
@@ -131,6 +131,7 @@
 
             // --- DOM Elements ---
             const output = document.getElementById('output');
+            const terminal = document.getElementById('terminal');
             const asciiDesktop = document.getElementById('ascii-desktop');
             const asciiMobile = document.getElementById('ascii-mobile');
             const zineListContainer = document.getElementById('zine-list');
@@ -323,6 +324,23 @@
                 animationFrameId = requestAnimationFrame(animationLoop);
             }
             
+            // --- DYNAMIC SCALING FOR MOBILE ASCII ---
+            function scaleMobileArt() {
+                 const isMobileView = window.getComputedStyle(asciiMobile).display !== 'none';
+                 if (isMobileView) {
+                    // Temporarily remove transform to get the true scrollWidth
+                    asciiMobile.style.transform = 'none';
+
+                    const containerWidth = terminal.clientWidth;
+                    const artWidth = asciiMobile.scrollWidth;
+                    
+                    if (artWidth > containerWidth) {
+                        const scale = containerWidth / artWidth;
+                        asciiMobile.style.transform = `scale(${scale})`;
+                    }
+                 }
+            }
+            
             // --- ZINE LISTER CODE ---
 
             async function initTerminal() {
@@ -331,6 +349,7 @@
                 output.textContent = 'Initializing...\nConnecting to GitHub repository...';
                 
                 initializeRippleEffect(); // Initialize the ripple effect
+                scaleMobileArt(); // Initial scale for mobile art
                 
                 await listZines();
             }
@@ -379,6 +398,7 @@
                     animationFrameId = null;
                 }
                 initializeRippleEffect();
+                scaleMobileArt();
             });
             
             // --- Initialization ---
