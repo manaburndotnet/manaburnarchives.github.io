@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ManaBurn Zine Archives</title>
+    <title>mana burn archives</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
@@ -348,10 +348,10 @@
                         .filter(file => file.type === 'file' && file.name.toLowerCase().endsWith('.pdf'))
                         .map(file => file.name);
 
-                    output.textContent = 'Connection established. Zine archives online.';
+                    output.textContent = 'Connection established........archives online.';
 
                     if (pdfFiles.length > 0) {
-                        zineListContainer.innerHTML = 'Available transmissions:<br><br>';
+                        zineListContainer.innerHTML = 'Available back issues:<br><br>';
                         pdfFiles.forEach(zine => {
                             const pdfUrl = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/${REPO_BRANCH}/${PDF_FOLDER}/${encodeURIComponent(zine)}`;
                             const fileElement = document.createElement('div');
