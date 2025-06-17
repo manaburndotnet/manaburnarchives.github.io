@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ManaBurn Archives</title>
+    <title>ManaBurn Zine Archives</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
@@ -67,54 +67,7 @@
             display: inline-block;
             will-change: transform, opacity;
         }
-
-        /* --- PDF Viewer Overlay --- */
-        #pdf-viewer {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.9);
-            display: none; /* Hidden by default */
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 1rem;
-            z-index: 1000;
-        }
-
-        #pdf-container {
-            width: 100%;
-            height: 100%;
-            max-width: 1000px;
-            max-height: 90vh;
-        }
-
-        #pdf-container iframe {
-            width: 100%;
-            height: 100%;
-            border: 2px solid var(--green);
-            box-shadow: 0 0 20px var(--shadow);
-            background: #fff; /* White background for PDF loading */
-        }
-
-        #close-pdf {
-            margin-top: 1rem;
-            background: var(--background);
-            color: var(--green);
-            border: 1px solid var(--green);
-            padding: 0.5rem 1rem;
-            font-family: inherit;
-            font-size: 1rem;
-            cursor: pointer;
-            text-transform: uppercase;
-        }
-        #close-pdf:hover {
-            background: var(--green);
-            color: var(--background);
-        }
-
+        
         /* --- Zine List Styling --- */
         #zine-list {
             margin-top: 1.5rem;
@@ -166,11 +119,6 @@
         <div id="zine-list"></div>
     </div>
 
-    <div id="pdf-viewer">
-        <div id="pdf-container"></div>
-        <button id="close-pdf">Close [ESC]</button>
-    </div>
-
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             // --- Configuration ---
@@ -184,48 +132,46 @@
             const asciiDesktop = document.getElementById('ascii-desktop');
             const asciiMobile = document.getElementById('ascii-mobile');
             const zineListContainer = document.getElementById('zine-list');
-            const pdfViewer = document.getElementById('pdf-viewer');
-            const pdfContainer = document.getElementById('pdf-container');
-            const closePdfButton = document.getElementById('close-pdf');
             
             // --- ASCII Art ---
-            const desktopArt = `
-                                                                                                                                                                                                                                                                                        
-          @@@@@@@@  @@@        @@@@@@@@@@@#%@                                                                                                                                                                                                                                                
-        @@-......:#*-.+@@     @+.:.-:==....*@                                                                                                                                                                                                                                                
-        @%==@@@+.......-@@     @@@@@*..=..:@@                                       @@@@@           @@@@@@@   @@  @@  @@@                                                                                                                                                                 
-          @     @*..-..:.*@          @+......:@          @@@@@@@@@@@@@   @@@@@..-#@@       @@#+--:-.:+@ @#-=%#=:@@:+@@                                                                                                                                                                    
-                @+=:..-:::@@       @#=*:..:#.-@         @=.....:=*:.%@ @@+.....:-+:+%@@   @@##+--...@@ @%%%#.-:.:.%@@                                                                                                                                                                    
-                @=-:=+=.+:.@@     @@::@+.-%-:=@@          @@@@+......+@ @*-@@@-:..+:.#@@@        @@..:@@     @@--...::*@                                                                                                                                                                    
-              @@.-@@..-:...@@    @@@@@@@#.+:=.=@            @@...=...%@@ @@  @@.#%..:*..=@@       @%.=@     @@@@+.....:@@                                                                                                                                                                  
-              @@*@@@@+-%#+:+@@ @@+-@@ @@*#=.:-+@          @*+@@==-:.:+@@      @@@@@*#:...:-@@     @@*#@   @#:@@@=.-+:..@@                                                                                                                                                                  
-             @@@@     @+%::..-@@@-.%@   @@:---:.@@       @@=.%@@@+.::..+@     @@-+@  @@:=#*.:%@@   @@=%@ @@#.=@  @:.:%:.%@                                                                                                                                                                  
-            @%-%@     @@:::...:#:.#@     @@@@#-..-@     @@=.#@  @%-=:-%%@@   @@:-@   @@+:.:#::@@ @@:#@@@::+@   @@-*....=@@                                                                                                                                                                  
-            @=:%@      @@+.:...:.:@@      @@+:-::.#@   @@:.-@    @*.....:#@  @@.*@      @@-.....@@@@+@@%..:@@    @*+#.+.%#@                                                                                                                                                                  
-           @%:@@         @+::=:-:.#@        @@..-...@@@-..+%@    @%:.:-..:@@ @%::@        @#.....-@@+@#...=@     @@@@%:+-#@%@@                                                                                             -                                                                   
-           @@-.@@          @+.....:@@          @*=.+..:@*...%@   @@@@@*:.-...+@@#.:@         @@*=:..-@.-...-@  @@@#@@@@.:-..:=@@                                                                                                                                                                
-           @%.:@@          @@::....=@@        @@-:#:..+....%@@@@==@@ @%++=..-#@...-@@         @#...........=@@+=:@@  @@++*@-:+@@                                                                                                                                                                
-          @@..:@@           @%......*@        @@.:.+........#:.+:@@   @#....%*=-:.:.%@@@@@     @@+...........#..%@    @%..*%:.:*@                                                                                                                                                                
-         @@-...:@@            @-....+@@       @#=:...........:..*#@ @@ @@+.:%@:.%%#....*:%@      @@=.:%+:#%##*+#%@      @@%@@@@@@@                                                                                                                                                                
-        @@.-===#@@            @@..:@@@        @@%@@@@@@@@@@@@@@@@@@%-:++-=+#@@#%=:@@@@@@@        @@:#@ @@                                                                                                                                                                                
-      @@=:@@                  @@.=@@                  @+..:@+....:...-@           @@@                                                                                                                                                                                             
-      @@*@@                     @@@                     @@@@@@---=.++-@@@@@@@@@@@@@@@@                                                                                                                                                                                                   
-                                                          @#--..:.#@:..=.-.:...+:##@@                                                     @@@@@@@@@@@@@    @@%@@@           @@@@@@@@  
-                                                          @@-%-%..:@@@@@@@@+:*:=....*@        @@   @@@@@@      @@@@@@@@@*=@@@@@@@@@@@@+:..-:......+@@@@@+...@@@     @@%-:::.-..@@ 
-                                                           @+=+.:--@@       @-=:....+@      @@=::-%@+=.%@@      @*=+:=.:=--*:#:.-++..*@@@@@@%-......::.........+@@   @@%@%%#:..+@   
-                                                          @@..=.::+@@      @@=.....:@@       @@@@%=..:.@@        @@:.#@@%@@@@%+%=:.@@       @#......#@@%...:.-=.%@@         @+..*@   
-                                                          @%*....##@@  @@@%#:.-:%@@@@@@@@@@@   @@.....@@          @+.-+@*@  @@:@-.:@        @-....*@  @%+@#.-....#@@        @=.@@   
-                                                          @%:....+*-=@@:.*:..:.:*..:.=:....#@@@@....=@           @+.:==%@  @+:=..:@       @#.:..+@   @@@@@@@*-+-+.:+@       @*:@@   
-                                                          @@:*#-=#:@@@@@@@@@@@@@@@@#*........-@@....-@           @+.-.==@  @#+:--:@      @*...=@@    @#:@@  @%=*=-:-@@      @+:@@   
-                                                          @@......:@         @=.-:......-@@.....@           @@:*.:+@  @@::#-:@ @@@@@+=%%@@@       @@+@@   @@+#--=.*@@ @++@@   
-                                                          @*.=-#=.:@         @=-==......-@@+.+-.@           @#=---#@  @%::..=#@:....#:.=@@        @+-@@    @%+@+:+*@@@@#@  
-                                                          @%:.=.-.:@@         @@..--....:.%@@..:..@@          @+.-+.*@  @%:..:.@@@@#:::....@@     @@%%@@      @@*+=-..*@@@@  
-                                                          @@..:.:+.@@         @@=.......:#@@@..:.%@@         @#=..-.@@  @%:+...@@  @@%......+@@   @@*+%@        @@:%::=#*:%@   
-                                                          @@:.:..:.@@         @@@@-%+%=:*@@@ @@-:::==@       @@+-@#--+@  @#.:-=:@@    @@-=#.-#:#@@ @#:#=%@        @@-:=.-..-@@ 
-                                                          @@........@@@   @@@@=--%-#+--:@@    @=-.:..-@@@@@@@@::.**:+.#@@@@-....:@@@@  @@=..-%%-=@@@%..:-:@@@@@     @@::...#@   
-                                                           @=.........:=++=+-%=*=:-+%*#@@@     @@-+...%-#...#@@@@@=..:...:@#.........@@   @#-:+%+=@%@#.-=++:=-*@@     @@..*@@  
-                                                          @=-##**#%##%%@@@@@@@@@         @@@@@@@@    @@@@@@@:#@@@@@@   @@@@@@@%@@@@@      @@*@@   
-                                                           @@@@   @@                                          @@@@                  @@       `;
+            const desktopArt = `                                                                                                                                                                                                                                                                                        
+                                                                                                                                                                                     
+      @@@@@@@@  @@@         @@@@@@@@@@@#%@                                                                                                                                           
+    @@-......:#*-.+@@      @+.:.-:==....*@                                                                                                                                           
+    @%==@@@+.......-@@     @@@@@*..=..:@@                              @@@@@            @@@@@@@    @@  @@  @@@                                                                       
+      @    @*..-..:.*@         @+......:@          @@@@@@@@@@@@@   @@@@@..-#@@      @@#+--:-.:+@ @#-=%#=:@@:+@@                                                                      
+           @+=:..-:::@@       @#=*:..:#.-@        @=.....:=*:.%@ @@+.....:-+:+%@@   @@##+--...@@ @%%%#.-:.:.%@@                                                                      
+           @=-:=+=.+:.@@     @@::@+.-%-:=@@        @@@@+......+@ @*-@@@-:..+:.#@@@       @@..:@@    @@--...::*@                                                                      
+          @@.-@@..-:...@@    @@@@@@#.+:=.=@          @@...=...%@@ @@  @@.#%..:*..=@@      @%.=@    @@@@+.....:@@                                                                     
+          @@*@@@@+-%#+:+@@ @@+-@@ @@*#=.:-+@        @*+@@==-:.:+@@     @@@@@*#:...:-@@    @@*#@   @#:@@@=.-+:..@@                                                                    
+         @@@@    @+%::..-@@@-.%@   @@:---:.@@     @@=.%@@@+.::..+@    @@-+@  @@:=#*.:%@@  @@=%@ @@#.=@  @:.:%:.%@                                                                    
+        @%-%@    @@:::...:#:.#@    @@@@#-..-@    @@=.#@  @%-=:-%%@@   @@:-@   @@+:.:#::@@ @@:#@@@::+@   @@-*....=@@                                                                  
+        @=:%@     @@+.:...:.:@@     @@+:-::.#@  @@:.-@    @*.....:#@  @@.*@     @@-.....@@@@+@@%..:@@    @*+#.+.%#@                                                                  
+       @%:@@       @+::=:-:.#@       @@..-...@@@-..+%@    @%:.:-..:@@ @%::@       @#.....-@@+@#...=@    @@@@%:+-#@%@@                                                                
+      @@-.@@        @+.....:@@        @*=.+..:@*...%@   @@@@@*:.-...+@@#.:@        @@*=:..-@.-...-@  @@@#@@@@.:-..:=@@                                                               
+      @%.:@@        @@::....=@@       @@-:#:..+....%@@@@==@@ @%++=..-#@...-@@        @#...........=@@+=:@@  @@++*@-:+@@                                                              
+     @@..:@@         @%......*@       @@.:.+........#:.+:@@   @#....%*=-:.:.%@@@@@    @@+...........#..%@    @%..*%:.:*@                                                             
+    @@-...:@@         @-....+@@      @#=:...........:..*#@ @@ @@+.:%@:.%%#....*:%@     @@=.:%+:#%##*+#%@      @@%@@@@@@@                                                             
+   @@.-===#@@        @@..:@@@        @@%@@@@@@@@@@@@@@@@@@%-:++-=+#@@#%=:@@@@@@@       @@:#@ @@                                                                                      
+  @@=:@@             @@.=@@                              @+..:@+....:...-@              @@@                                                                                          
+  @@*@@               @@@                                 @@@@@@---=.++-@@@@@@@@@@@@@@@@                                                                                             
+                                                               @#--..:.#@:..=.-.:...+:##@@                                               @@@@@@@@@@@@@    @@%@@@           @@@@@@@@  
+                                                               @@-%-%..:@@@@@@@@+:*:=....*@       @@   @@@@@@     @@@@@@@@@*=@@@@@@@@@@@@+:..-:......+@@@@@+...@@@     @@%-:::.-..@@ 
+                                                                @+=+.:--@@       @-=:....+@    @@=::-%@+=.%@@     @*=+:=.:=--*:#:.-++..*@@@@@@%-......::.........+@@   @@%@%%#:..+@  
+                                                               @@..=.::+@@      @@=.....:@@     @@@@%=..:.@@        @@:.#@@%@@@@%+%=:.@@       @#......#@@%...:.-=.%@@       @+..*@  
+                                                               @%*....##@@  @@@%#:.-:%@@@@@@@@@@@  @@.....@@         @+.-+@*@  @@:@-.:@         @-....*@  @%+@#.-....#@@      @=.@@  
+                                                               @%:....+*-=@@:.*:..:.:*..:.=:....#@@@@....=@          @+.:==%@  @+:=..:@        @#.:..+@   @@@@@@*-+-+.:+@     @*:@@  
+                                                               @@:*#-=#:@@@@@@@@@@@@@@@@#*........-@@....-@          @+.-.==@  @#+:--:@       @*...=@@    @#:@@  @%=*=-:-@@   @+:@@  
+                                                               @@......:@              @=.-:......-@@.....@          @@:*.:+@  @@::#-:@ @@@@@+=%%@@@      @@+@@   @@+#--=.*@@ @++@@  
+                                                               @*.=-#=.:@              @=-==......-@@+.+-.@          @#=---#@  @%::..=#@:....#:.=@@       @+-@@     @%+@+:+*@@@@#@   
+                                                               @%:.=.-.:@@            @@..--....:.%@@..:..@@         @+.-+.*@  @%:..:.@@@@#:::....@@     @@%%@@      @@*+=-..*@@@@   
+                                                               @@..:.:+.@@            @@=.......:#@@@..:.%@@        @#=..-.@@  @%:+...@@  @@%......+@@   @@*+%@        @@:%::=#*:%@  
+                                                               @@:.:..:.@@          @@@@-%+%=:*@@@ @@-:::==@       @@+-@#--+@  @#.:-=:@@    @@-=#.-#:#@@ @#:#=%@        @@-:=.-..-@@ 
+                                                               @@........@@@    @@@@=--%-#+--:@@    @=-.:..-@@@@@@@@::.**:+.#@@@@-....:@@@@  @@=..-%%-=@@@%..:-:@@@@@     @@::...#@  
+                                                                @=.........:=++=+-%=*=:-+%*#@@@     @@-+...%-#...#@@@@@=..:...:@#.........@@   @#-:+%+=@%@#.-=++:=-*@@     @@..*@@   
+                                                               @=-##**#%##%%@@@@@@@@@        @@@@@@@@    @@@@@@@:#@@@@@@   @@@@@@@@%@@@@@     @@*@@   
+                                                                @@@@   @@                                                      @@@@                                         @@       
+                                                                                                                                                                                     `;
             const mobileArt = `
                           @@@                                                                                                       
         @%*****#%*#@    @@=-=+*=:.=@                                                                                                      
@@ -400,14 +346,15 @@
                         .filter(file => file.type === 'file' && file.name.toLowerCase().endsWith('.pdf'))
                         .map(file => file.name);
 
-                    output.textContent = 'Connection established. Archives online.';
+                    output.textContent = 'Connection established. Zine archives online.';
 
                     if (pdfFiles.length > 0) {
                         zineListContainer.innerHTML = 'Available transmissions:<br><br>';
                         pdfFiles.forEach(zine => {
+                            const pdfUrl = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/${REPO_BRANCH}/${PDF_FOLDER}/${encodeURIComponent(zine)}`;
                             const fileElement = document.createElement('div');
                             fileElement.className = 'zine-file';
-                            fileElement.innerHTML = `<a onclick="openZine('${zine}')">${zine}</a>`;
+                            fileElement.innerHTML = `<a href="${pdfUrl}" target="_blank" rel="noopener noreferrer">${zine}</a>`;
                             zineListContainer.appendChild(fileElement);
                         });
                     } else {
@@ -419,27 +366,7 @@
                 }
             }
             
-            window.openZine = function(filename) {
-                const pdfUrl = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/${REPO_BRANCH}/${PDF_FOLDER}/${encodeURIComponent(filename)}`;
-                pdfContainer.innerHTML = `<iframe src="${pdfUrl}"></iframe>`;
-                pdfViewer.style.display = 'flex';
-                document.body.style.overflow = 'hidden';
-            }
-
-            function closePdf() {
-                pdfViewer.style.display = 'none';
-                pdfContainer.innerHTML = '';
-                document.body.style.overflow = 'auto';
-            }
-
             // --- Event Listeners ---
-            closePdfButton.addEventListener('click', closePdf);
-            window.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape' && pdfViewer.style.display === 'flex') {
-                    closePdf();
-                }
-            });
-            
             window.addEventListener('mousemove', (e) => {
                 targetMouseX = e.clientX;
                 targetMouseY = e.clientY;
@@ -447,8 +374,10 @@
             });
 
             window.addEventListener('resize', () => {
-                cancelAnimationFrame(animationFrameId);
-                animationFrameId = null;
+                if(animationFrameId) {
+                    cancelAnimationFrame(animationFrameId);
+                    animationFrameId = null;
+                }
                 initializeRippleEffect();
             });
             
